@@ -1,33 +1,29 @@
 local M = {}
 
-M.name = 'fzf-projects.nvim'
+M.prefix = _G.__fzf_projects.name
 
 ---@param s string
 M.info = function(s)
-  return vim.api.nvim_echo({ { M.name .. ': ' .. s, 'Comment' } }, true, {})
+  local mesg = string.format('%s: %s\n', M.prefix, s)
+  return vim.api.nvim_echo({ { mesg, 'Comment' } }, true, {})
 end
 
 ---@param s string
 M.warn = function(s)
-  return vim.api.nvim_echo({ { M.name .. ': ' .. s, 'WarningMsg' } }, true, {})
+  local mesg = string.format('%s: %s\n', M.prefix, s)
+  return vim.api.nvim_echo({ { mesg, 'WarningMsg' } }, true, {})
 end
 
 ---@param s string
-M.error = function(s)
-  vim.api.nvim_echo({ { M.name .. ': ' .. s, 'ErrorMsg' } }, true, {})
+M.err = function(s)
+  local mesg = string.format('%s: %s\n', M.prefix, s)
+  vim.api.nvim_echo({ { mesg, 'ErrorMsg' } }, true, {})
 end
 
 ---@param p Project
 ---@return string
 M.fmt_line = function(p)
   return string.format('%s=%s=%s\n', p.name, p.path, p.last_visit)
-end
-
----@param s string
----@return string, string
-M.extract = function(s)
-  local name, path = s:match('^(%S+)%s+(.+)$')
-  return name or '', path or ''
 end
 
 ---@return string[]
@@ -37,7 +33,6 @@ M.fmt_to_str = function(t)
   for _, k in ipairs(t) do
     table.insert(projects, M.fmt_line(k))
   end
-
   return projects
 end
 
@@ -51,6 +46,23 @@ M.fmt_home_path = function(path)
 
   local s, _ = string.gsub(path, h, '~')
   return s
+end
+
+---@param str string
+---@param target string
+---@return boolean
+M.startswith = function(str, target)
+  return string.sub(str, 1, 1) == target
+end
+
+---@param s string
+---@return table<string>
+M.split_newline = function(s)
+  local result = {}
+  for line in string.gmatch(s, '[^\n]+') do
+    table.insert(result, line)
+  end
+  return result
 end
 
 return M
