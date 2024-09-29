@@ -133,6 +133,19 @@ M.get = function(s)
   return project
 end
 
+---@return integer
+---@param p Project
+M.index = function(p)
+  local data = M.data()
+  for i, t in ipairs(data) do
+    if t.name == p.name and t.path == p.path then
+      return i
+    end
+  end
+
+  return -1
+end
+
 ---@param s string
 M.get_name = function(s)
   if s == nil or s == '' then
