@@ -6,7 +6,7 @@ local M = {}
 ---@return boolean
 ---@param fname string?
 M.exists = function(fname)
-  if fname == nil or fname == '' then
+  if fname == '' or fname == nil then
     return false
   end
 
@@ -19,38 +19,33 @@ M.exists = function(fname)
   end
 end
 
----@param fname string
----@param p Project
-M.append = function(fname, p)
-  if fname == '' then
+---@return boolean
+---@param fname string?
+---@param s string
+M.append = function(fname, s)
+  if fname == '' or fname == nil then
     util.err('append: filename can not be empty')
-    return
+    return false
   end
 
   local file = io.open(fname, 'a')
   if not file then
-    util.err(fname .. ' not found')
-    return
+    util.err('append: filename not found: ' .. fname)
+    return false
   end
 
-  local ok, formatted = pcall(util.fmt_line, p)
-  if not ok then
-    file:close()
-    util.err('formating line before saving: ' .. formatted)
-  end
-
-  file:write(formatted)
+  file:write(s)
   file:close()
 
-  util.info(string.format("'%s' added", p.name))
+  return true
 end
 
 ---@return string[]
----@param fname string
+---@param fname string?
 M.read = function(fname)
   local lines = {}
-  if fname == '' then
-    util.err('append: filename can not be empty')
+  if fname == '' or fname == nil then
+    util.err('read: filename can not be empty')
     return lines
   end
 
@@ -65,24 +60,6 @@ M.read = function(fname)
   end
 
   file:close()
-
-  return lines
-end
-
----@return string[]
----@param fname string
-M.new_read = function(fname)
-  -- FIX: delete me
-  if fname == '' then
-    util.err('append: filename can not be empty')
-    return {}
-  end
-
-  local data = M.read_file(fname)
-  local lines = {}
-  for _, l in ipairs(util.split_newline(data)) do
-    table.insert(lines, l)
-  end
 
   return lines
 end
@@ -124,8 +101,13 @@ M.change_cwd = function(p)
   return true
 end
 
----@param fname string
+---@param fname string?
 M.touch = function(fname)
+  if fname == '' or fname == nil then
+    util.err('touch: filename can not be empty')
+    return
+  end
+
   if M.exists(fname) then
     return
   end
@@ -138,8 +120,8 @@ M.touch = function(fname)
   file:close()
 end
 
----@param fname string
 ---@return boolean
+---@param fname string?
 M.path_is_directory = function(fname)
   local S_IFDIR = 0x4000 -- directory
   local stat = uv.fs_stat(fname)
@@ -150,24 +132,6 @@ M.path_is_directory = function(fname)
   return false
 end
 
----@param fname string
----@return string
-M.read_file = function(fname)
-  -- FIX: delete me
-  ---@type string?
-  local fd = uv.fs_open(fname, 'r', 438)
-  if fd == nil then
-    return ''
-  end
-  local stat = assert(uv.fs_fstat(fd))
-  if stat.type ~= 'file' then
-    return ''
-  end
-  local data = assert(uv.fs_read(fd, stat.size, 0))
-  assert(uv.fs_close(fd))
-  return data
-end
-
 -- returns the root directory based on:
 -- * lsp workspace folders
 -- * lsp root_dir
@@ -175,6 +139,8 @@ end
 -- * root pattern of cwd
 ---@return string
 function M.get_root()
+  -- NOTE: extracted from `https://github.com/LazyVim/LazyVim`
+  -- thanks @folke
   local root_patterns = { '.git', '/lua' }
   ---@type string?
   local path = vim.api.nvim_buf_get_name(0)
