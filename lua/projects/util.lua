@@ -1,6 +1,6 @@
 local M = {}
 
-M.prefix = _G.__fzf_projects.name
+M.prefix = ''
 
 ---@param s string
 M.info = function(s)
@@ -63,6 +63,11 @@ M.split_newline = function(s)
     table.insert(result, line)
   end
   return result
+end
+
+---@param opts table
+M.setup = function(opts)
+  M.prefix = opts.name
 end
 
 return M

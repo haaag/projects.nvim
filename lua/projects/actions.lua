@@ -209,7 +209,7 @@ M.load_actions = function(act)
   return result
 end
 
----@param opts table<any>
+---@param opts table
 M.create_user_command = function(opts)
   vim.api.nvim_create_user_command(opts.cmd, function()
     fzf.fzf_exec(function(fzf_cb)
@@ -275,9 +275,10 @@ M.defaults = {
   },
 }
 
----@param opts table<any>
+---@param opts table
 M.setup = function(opts)
-  pathlib.touch(store.fname)
+  opts.header = opts.header or M.create_header(M.defaults)
+  opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults))
   M.create_user_command(opts)
 end
 

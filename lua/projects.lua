@@ -1,37 +1,40 @@
 ---@brief [[
 ---
----  ____            _           _
---- |  _ \ _ __ ___ (_) ___  ___| |_ ___
---- | |_) | '__/ _ \| |/ _ \/ __| __/ __|
---- |  __/| | | (_) | |  __/ (__| |_\__ \
---- |_|   |_|  \___// |\___|\___|\__|___/
----               |__/
+---          ____            _           _
+---         |  _ \ _ __ ___ (_) ___  ___| |_ ___
+---         | |_) | '__/ _ \| |/ _ \/ __| __/ __|
+---         |  __/| | | (_) | |  __/ (__| |_\__ \
+---         |_|   |_|  \___// |\___|\___|\__|___/
+---                     |__/
 ---
+---          - keep your fun projects close by -
 ---@brief ]]
 
-local M = {}
+local M = {
+  defaults = {
+    name = 'projects.nvim',
 
-M.name = 'projects.nvim'
-M.cmd = 'Projects'
+    -- global `user-command` in neovim.
+    cmd = 'Projects',
 
--- project's store
-M.fname = vim.fn.stdpath('data') .. '/nvim-projects.txt'
+    -- fzf's prompt
+    prompt = 'Projects> ',
 
--- export module
-_G.__fzf_projects = M
-
-M.actions = require('projects.actions')
-
-M.setup = function(opts)
-  local actions = require('projects.actions')
-  local keybinds = actions.defaults
-  actions.setup({
-    prompt = opts.prompt or 'Projects> ',
+    -- preview
     previewer = false,
-    header = M.actions.create_header(keybinds),
-    actions = M.actions.load_actions(keybinds),
-    cmd = M.cmd,
-  })
+
+    -- project's store
+    fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
+  },
+}
+
+---@param opts? table
+M.setup = function(opts)
+  opts = opts or {}
+  opts = vim.tbl_deep_extend('keep', opts, M.defaults)
+  require('projects.util').setup(opts)
+  require('projects.store').setup(opts)
+  require('projects.actions').setup(opts)
 end
 
 return M

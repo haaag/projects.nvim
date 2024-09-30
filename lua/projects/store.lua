@@ -3,8 +3,10 @@ local pathlib = require('projects.path')
 local M = {}
 
 ---@alias Project { name:string, path:string, fmt:string, last_visit:integer, exists:boolean }
+---@alias StoreConf { fname:string }
 
-M.fname = _G.__fzf_projects.fname
+---@type string?
+M.fname = ''
 
 ---@type Project[]
 M.state = {}
@@ -212,6 +214,29 @@ end
 M.extract = function(s)
   local name, path = s:match('^(%S+)%s+(.+)$')
   return name or '', path or ''
+end
+
+---@param p Project
+---@return string
+M.fmt_line = function(p)
+  return string.format('%s=%s=%s\n', p.name, p.path, p.last_visit)
+end
+
+---format items to store in file.
+---@return string[]
+---@param t Project[]
+M.fmt_to_store = function(t)
+  local projects = {}
+  for _, k in ipairs(t) do
+    table.insert(projects, M.fmt_line(k))
+  end
+  return projects
+end
+
+---@param opts StoreConf
+M.setup = function(opts)
+  M.fname = opts.fname
+  pathlib.touch(opts.fname)
 end
 
 return M
