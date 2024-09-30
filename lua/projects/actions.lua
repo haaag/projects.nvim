@@ -183,10 +183,10 @@ M.create_header = function(act)
   local result = ''
   local sep = ' · '
   local count = 0
-  for s, t in pairs(act) do
+  for _, t in pairs(act) do
     count = count + 1
     if t.header then
-      local key = string.format('%s:%s', t.keybind, s)
+      local key = string.format('%s:%s', t.keybind, t.title)
       if count == vim.tbl_count(act) then
         result = result .. key
       else
@@ -228,6 +228,52 @@ M.create_user_command = function(opts)
     end, opts)
   end, {})
 end
+
+---@type Action[]
+M.defaults = {
+  enter = {
+    title = 'default',
+    keybind = 'default',
+    fn = M.open,
+    header = false,
+  },
+  add = {
+    title = 'add',
+    keybind = 'ctrl-a',
+    header = true,
+    fn = M.add,
+  },
+  grep = {
+    title = 'grep',
+    keybind = 'ctrl-g',
+    header = true,
+    fn = M.grep,
+  },
+  rename = {
+    title = 'rename',
+    keybind = 'ctrl-r',
+    header = true,
+    fn = M.rename,
+  },
+  restore = {
+    title = 'restore',
+    keybind = 'ctrl-u',
+    header = true,
+    fn = M.restore,
+  },
+  remove = {
+    title = 'remove',
+    keybind = 'ctrl-x',
+    header = true,
+    fn = M.remove,
+  },
+  edit_path = {
+    title = 'edit path',
+    keybind = 'ctrl-e',
+    header = true,
+    fn = M.edit_path,
+  },
+}
 
 ---@param opts table<any>
 M.setup = function(opts)

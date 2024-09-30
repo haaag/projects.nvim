@@ -22,54 +22,10 @@ _G.__fzf_projects = M
 
 M.actions = require('projects.actions')
 
----@type Action[]
-local keybinds = {
-  default = {
-    title = 'default',
-    keybind = 'default',
-    fn = M.actions.open,
-    header = false,
-  },
-  add = {
-    title = 'add',
-    keybind = 'ctrl-a',
-    header = true,
-    fn = M.actions.add,
-  },
-  grep = {
-    title = 'grep',
-    keybind = 'ctrl-g',
-    header = true,
-    fn = M.actions.grep,
-  },
-  rename = {
-    title = 'rename',
-    keybind = 'ctrl-r',
-    header = true,
-    fn = M.actions.rename,
-  },
-  restore = {
-    title = 'restore',
-    keybind = 'ctrl-u',
-    header = true,
-    fn = M.actions.restore,
-  },
-  remove = {
-    title = 'remove',
-    keybind = 'ctrl-x',
-    header = true,
-    fn = M.actions.remove,
-  },
-  edit_path = {
-    title = 'edit path',
-    keybind = 'ctrl-e',
-    header = true,
-    fn = M.actions.edit_path,
-  },
-}
-
 M.setup = function(opts)
-  M.actions.setup({
+  local actions = require('projects.actions')
+  local keybinds = actions.defaults
+  actions.setup({
     prompt = opts.prompt or 'Projects> ',
     previewer = false,
     header = M.actions.create_header(keybinds),
