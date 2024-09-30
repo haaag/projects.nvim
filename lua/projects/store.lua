@@ -3,7 +3,6 @@ local pathlib = require('projects.path')
 local M = {}
 
 ---@alias Project { name:string, path:string, fmt:string, last_visit:integer, exists:boolean }
----@alias StoreConf { fname:string }
 
 ---@type string?
 M.fname = ''
@@ -42,7 +41,16 @@ M.insert = function(p)
     return
   end
 
-  pathlib.append(M.fname, p)
+  local ok, p_formatted = pcall(M.fmt_line, p)
+  if not ok then
+    util.err('formating line before saving: ' .. p_formatted)
+  end
+
+  if not pathlib.append(M.fname, p_formatted) then
+    util.err('error adding: ' .. p.name)
+  end
+
+  util.info(string.format("'%s' added", p.name))
 end
 
 ---@param p Project
@@ -51,7 +59,7 @@ M.remove = function(p)
   local projects = M.filter(data, p)
   M.save_state(data)
 
-  local projects_fmt = util.fmt_to_str(projects)
+  local projects_fmt = M.fmt_to_store(projects)
   pathlib.write(M.fname, projects_fmt)
   util.info(string.format("'%s' deleted", p.name))
 end
@@ -63,7 +71,7 @@ M.update = function(p)
   local projects = M.filter(data, p)
   table.insert(projects, p)
 
-  local projects_fmt = util.fmt_to_str(projects)
+  local projects_fmt = M.fmt_to_store(projects)
   pathlib.write(M.fname, projects_fmt)
 end
 
@@ -89,7 +97,7 @@ M.rename = function(new_name, p)
   util.info(string.format("project '%s' renamed to '%s'", old_name, new_name))
   table.insert(projects, p)
 
-  local projects_fmt = util.fmt_to_str(projects)
+  local projects_fmt = M.fmt_to_store(projects)
   pathlib.write(M.fname, projects_fmt)
   return p
 end
@@ -106,7 +114,7 @@ M.edit_path = function(path, p)
   util.info(string.format("project '%s' new path '%s'", p.name, p.path))
   table.insert(projects, p)
 
-  local projects_fmt = util.fmt_to_str(projects)
+  local projects_fmt = M.fmt_to_store(projects)
   pathlib.write(M.fname, projects_fmt)
   return p
 end
@@ -114,11 +122,11 @@ end
 ---@return boolean
 M.restore = function()
   if M.state == nil or vim.tbl_isempty(M.state) then
-    util.warn('nothing to undo')
+    util.warn('nothing to restore')
     return false
   end
 
-  local projects_fmt = util.fmt_to_str(M.state)
+  local projects_fmt = M.fmt_to_store(M.state)
   pathlib.write(M.fname, projects_fmt)
   util.info('state restored')
 
@@ -233,7 +241,7 @@ M.fmt_to_store = function(t)
   return projects
 end
 
----@param opts StoreConf
+---@param opts { fname:string }
 M.setup = function(opts)
   M.fname = opts.fname
   pathlib.touch(opts.fname)

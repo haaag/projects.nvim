@@ -29,9 +29,11 @@ local add_ansi = function(t)
   return t
 end
 
-local M = {}
-
-M.command = _G.__fzf_projects.cmd
+local M = {
+  fzf_files = fzf.files,
+  fzf_live_grep = fzf.live_grep,
+  fzf_resume = fzf.actions.resume,
+}
 
 ---@return boolean
 ---@param s table<string?>
@@ -69,8 +71,8 @@ M.grep = function(s)
     return
   end
 
-  fzf.live_grep()
-  fzf.actions.resume()
+  M.fzf_live_grep()
+  M.fzf_resume()
 end
 
 ---@param s table<string?>
@@ -79,7 +81,7 @@ M.open = function(s)
     return
   end
 
-  fzf.files()
+  M.fzf_files()
 end
 
 M.add = function(_)
@@ -94,7 +96,7 @@ M.add = function(_)
   }
 
   store.insert(project)
-  fzf.actions.resume()
+  M.fzf_resume()
 end
 
 ---@param s table<string?>
@@ -110,7 +112,7 @@ M.remove = function(s)
   end
 
   store.remove(p)
-  fzf.actions.resume()
+  M.fzf_resume()
 end
 
 M.restore = function(_)
@@ -118,7 +120,7 @@ M.restore = function(_)
     return
   end
 
-  fzf.actions.resume()
+  M.fzf_resume()
 end
 
 ---@param s table<string?>
@@ -146,7 +148,7 @@ M.rename = function(s)
     store.rename(input, p)
   end)
 
-  fzf.actions.resume()
+  M.fzf_resume()
 end
 
 ---@param s table<string?>
@@ -174,14 +176,14 @@ M.edit_path = function(s)
     store.edit_path(input, p)
   end)
 
-  fzf.actions.resume()
+  M.fzf_resume()
 end
 
 ---@return string
 ---@param act Action[]
 M.create_header = function(act)
   local result = ''
-  local sep = ' · '
+  local sep = '  '
   local count = 0
   for _, t in pairs(act) do
     count = count + 1
