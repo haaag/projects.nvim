@@ -4,14 +4,14 @@ local M = {}
 
 ---@alias Project { name:string, path:string, fmt:string, last_visit:integer, exists:boolean }
 
-M.file = _G.__fzf_projects.fname
+M.fname = _G.__fzf_projects.fname
 
 ---@type Project[]
 M.state = {}
 
 ---@return Project[]
 M.data = function()
-  local lines = pathlib.read(M.file)
+  local lines = pathlib.read(M.fname)
   local projects = {}
 
   for _, l in pairs(lines) do
@@ -30,24 +30,17 @@ M.data = function()
   return projects
 end
 
----@param p string
-M.add = function(p)
-  local name = vim.fs.basename(p)
-  local project = {
-    name = name,
-    path = p,
-    last_visit = os.time(),
-  }
-
+---@param p Project
+M.insert = function(p)
   local data = M.data()
   M.save_state(data)
 
-  if M.exists(project) then
-    util.warn(string.format("'%s' already exists", project.name))
+  if M.exists(p) then
+    util.warn(string.format("'%s' already exists", p.name))
     return
   end
 
-  pathlib.append(M.file, project)
+  pathlib.append(M.fname, p)
 end
 
 ---@param p Project
@@ -57,7 +50,7 @@ M.remove = function(p)
   M.save_state(data)
 
   local projects_fmt = util.fmt_to_str(projects)
-  pathlib.write(M.file, projects_fmt)
+  pathlib.write(M.fname, projects_fmt)
   util.info(string.format("'%s' deleted", p.name))
 end
 
@@ -69,7 +62,7 @@ M.update = function(p)
   table.insert(projects, p)
 
   local projects_fmt = util.fmt_to_str(projects)
-  pathlib.write(M.file, projects_fmt)
+  pathlib.write(M.fname, projects_fmt)
 end
 
 ---@return boolean
@@ -95,24 +88,52 @@ M.rename = function(new_name, p)
   table.insert(projects, p)
 
   local projects_fmt = util.fmt_to_str(projects)
-  pathlib.write(M.file, projects_fmt)
+  pathlib.write(M.fname, projects_fmt)
   return p
 end
 
+---@return Project
+---@param p Project
+---@param path string
+M.edit_path = function(path, p)
+  local data = M.data()
+  M.save_state(data)
+  local projects = M.filter(data, p)
+
+  p.path = path
+  util.info(string.format("project '%s' new path '%s'", p.name, p.path))
+  table.insert(projects, p)
+
+  local projects_fmt = util.fmt_to_str(projects)
+  pathlib.write(M.fname, projects_fmt)
+  return p
+end
+
+---@return boolean
 M.restore = function()
   if M.state == nil or vim.tbl_isempty(M.state) then
     util.warn('nothing to undo')
-    return
+    return false
   end
 
   local projects_fmt = util.fmt_to_str(M.state)
-  pathlib.write(M.file, projects_fmt)
+  pathlib.write(M.fname, projects_fmt)
   util.info('state restored')
+
+  return true
 end
 
----@return Project
----@param s string
+---@return Project?
+---@param s string?
 M.get = function(s)
+  if type(s) ~= 'string' then
+    util.warn('expected type string, got: ' .. type(s))
+  end
+
+  if s == nil then
+    return
+  end
+
   local projects = M.data()
   local project = nil
   local name, path = M.extract(s)
@@ -129,7 +150,6 @@ M.get = function(s)
     end
   end
 
-  ---@diagnostic disable-next-line: return-type-mismatch
   return project
 end
 

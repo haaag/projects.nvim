@@ -1,24 +1,80 @@
+---@brief [[
+---
+---  ____            _           _
+--- |  _ \ _ __ ___ (_) ___  ___| |_ ___
+--- | |_) | '__/ _ \| |/ _ \/ __| __/ __|
+--- |  __/| | | (_) | |  __/ (__| |_\__ \
+--- |_|   |_|  \___// |\___|\___|\__|___/
+---               |__/
+---
+---@brief ]]
+
 local M = {}
 
-_G.__fzf_projects = {
-  name = 'fzf-projects.nvim',
-  cmd = 'Projects',
-  fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
+M.name = 'projects.nvim'
+M.cmd = 'Projects'
+
+-- project's store
+M.fname = vim.fn.stdpath('data') .. '/nvim-projects.txt'
+
+-- export module
+_G.__fzf_projects = M
+
+M.actions = require('projects.actions')
+
+---@type Action[]
+local keybinds = {
+  default = {
+    title = 'default',
+    keybind = 'default',
+    fn = M.actions.open,
+    header = false,
+  },
+  add = {
+    title = 'add',
+    keybind = 'ctrl-a',
+    header = true,
+    fn = M.actions.add,
+  },
+  grep = {
+    title = 'grep',
+    keybind = 'ctrl-g',
+    header = true,
+    fn = M.actions.grep,
+  },
+  rename = {
+    title = 'rename',
+    keybind = 'ctrl-r',
+    header = true,
+    fn = M.actions.rename,
+  },
+  restore = {
+    title = 'restore',
+    keybind = 'ctrl-u',
+    header = true,
+    fn = M.actions.restore,
+  },
+  remove = {
+    title = 'remove',
+    keybind = 'ctrl-x',
+    header = true,
+    fn = M.actions.remove,
+  },
+  edit_path = {
+    title = 'edit path',
+    keybind = 'ctrl-e',
+    header = true,
+    fn = M.actions.edit_path,
+  },
 }
 
 M.setup = function(opts)
-  local actions = require('projects.actions')
-  actions.setup({
+  M.actions.setup({
     prompt = opts.prompt or 'Projects> ',
     previewer = false,
-    header = '<ctrl-a>:add • <ctrl-x>:remove • <ctrl-r>:rename • <ctrl-u>:undo',
-    actions = {
-      ['default'] = actions.opts.default,
-      ['ctrl-a'] = actions.opts.add,
-      ['ctrl-u'] = actions.opts.restore,
-      ['ctrl-x'] = actions.opts.remove,
-      ['ctrl-r'] = actions.opts.rename,
-    },
+    header = M.actions.create_header(keybinds),
+    actions = M.actions.load_actions(keybinds),
+    cmd = M.cmd,
   })
 end
 

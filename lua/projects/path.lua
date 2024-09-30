@@ -3,10 +3,8 @@ local uv = vim.uv or vim.loop
 
 local M = {}
 
-M.root_patterns = { '.git', '/lua' }
-
 ---@return boolean
----@param fname string
+---@param fname string?
 M.exists = function(fname)
   if fname == nil or fname == '' then
     return false
@@ -74,6 +72,7 @@ end
 ---@return string[]
 ---@param fname string
 M.new_read = function(fname)
+  -- FIX: delete me
   if fname == '' then
     util.err('append: filename can not be empty')
     return {}
@@ -109,7 +108,7 @@ M.write = function(fname, t)
 end
 
 ---@return boolean
----@param p string
+---@param p string?
 M.change_cwd = function(p)
   if p == nil then
     return false
@@ -154,6 +153,8 @@ end
 ---@param fname string
 ---@return string
 M.read_file = function(fname)
+  -- FIX: delete me
+  ---@type string?
   local fd = uv.fs_open(fname, 'r', 438)
   if fd == nil then
     return ''
@@ -174,6 +175,7 @@ end
 -- * root pattern of cwd
 ---@return string
 function M.get_root()
+  local root_patterns = { '.git', '/lua' }
   ---@type string?
   local path = vim.api.nvim_buf_get_name(0)
   path = path ~= '' and vim.loop.fs_realpath(path) or nil
@@ -201,7 +203,7 @@ function M.get_root()
   if not root then
     path = path and vim.fs.dirname(path) or vim.loop.cwd()
     ---@type string?
-    root = vim.fs.find(M.root_patterns, { path = path, upward = true })[1]
+    root = vim.fs.find(root_patterns, { path = path, upward = true })[1]
     root = root and vim.fs.dirname(root) or vim.loop.cwd()
   end
   ---@cast root string

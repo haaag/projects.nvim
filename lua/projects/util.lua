@@ -4,19 +4,19 @@ M.prefix = _G.__fzf_projects.name
 
 ---@param s string
 M.info = function(s)
-  local mesg = string.format('%s: %s\n', M.prefix, s)
+  local mesg = string.format('%s: %s', M.prefix, s)
   return vim.api.nvim_echo({ { mesg, 'Comment' } }, true, {})
 end
 
 ---@param s string
 M.warn = function(s)
-  local mesg = string.format('%s: %s\n', M.prefix, s)
+  local mesg = string.format('%s: %s', M.prefix, s)
   return vim.api.nvim_echo({ { mesg, 'WarningMsg' } }, true, {})
 end
 
 ---@param s string
 M.err = function(s)
-  local mesg = string.format('%s: %s\n', M.prefix, s)
+  local mesg = string.format('%s: %s', M.prefix, s)
   vim.api.nvim_echo({ { mesg, 'ErrorMsg' } }, true, {})
 end
 
