@@ -1,6 +1,7 @@
 local util = require('projects.util')
 local uv = vim.uv or vim.loop
 
+---@class Pathlib
 local M = {}
 
 ---@return boolean

@@ -1,3 +1,4 @@
+---@class Util
 local M = {}
 
 M.prefix = ''

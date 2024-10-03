@@ -1,11 +1,13 @@
 local util = require('projects.util')
 local pathlib = require('projects.path')
+
+---@class Store
 local M = {}
 
 ---@alias Project { name:string, path:string, fmt:string, last_visit:integer, exists:boolean }
 
 ---@type string?
-M.fname = ''
+M.fname = nil
 
 ---@type Project[]
 M.state = {}
@@ -50,7 +52,7 @@ M.insert = function(p)
     util.err('error adding: ' .. p.name)
   end
 
-  util.info(string.format("'%s' added", p.name))
+  util.info(string.format("project '%s' added", p.name))
 end
 
 ---@param p Project
@@ -176,7 +178,7 @@ M.index = function(p)
   return -1
 end
 
----@param s string
+---@param s string?
 M.get_name = function(s)
   if s == nil or s == '' then
     return ''
@@ -185,7 +187,7 @@ M.get_name = function(s)
   return s:match('^(.-)=') or 'name-not-found'
 end
 
----@param s string
+---@param s string?
 M.get_path = function(s)
   if s == nil or s == '' then
     return ''
@@ -194,7 +196,7 @@ M.get_path = function(s)
   return s:match('=(.+)=%d+$') or 'path-not-found'
 end
 
----@param s string
+---@param s string?
 M.get_timestamp = function(s)
   if s == nil or s == '' then
     return ''

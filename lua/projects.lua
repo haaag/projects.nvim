@@ -8,6 +8,7 @@
 ---
 ---@brief ]]
 
+---@class Projects
 local M = {
   defaults = {
     name = 'projects.nvim',
@@ -23,10 +24,13 @@ local M = {
 
     -- project's store
     fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
+
+    -- color output
+    color = true,
   },
 }
 
----@param opts? table
+---@param opts? Projects
 M.setup = function(opts)
   opts = opts or {}
   opts = vim.tbl_deep_extend('keep', opts, M.defaults)

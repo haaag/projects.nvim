@@ -11,7 +11,8 @@ end
 
 ---@return  Project[]
 ---@param t Project[]
-local add_ansi = function(t)
+---@param c boolean add color to items
+local add_ansi = function(t, c)
   local ansi = fzf.utils.ansi_codes
   local width = 0
   for _, v in ipairs(t) do
@@ -20,15 +21,21 @@ local add_ansi = function(t)
 
   for _, p in ipairs(t) do
     local w = width
-    local fmt = p.exists and ansi.magenta(p.name) or ansi.red(ansi.italic(p.name))
-    local path_color = ansi.grey(ansi.italic(p.path))
-    w = w + fzf.utils.ansi_escseq_len(fmt) + 2
-    p.fmt = string.format('%-' .. w .. 's %s', fmt, path_color)
+
+    if c then
+      local name = p.exists and ansi.magenta(p.name) or ansi.red(ansi.italic(p.name))
+      local path_color = ansi.italic(p.path)
+      w = w + fzf.utils.ansi_escseq_len(name) + 2
+      p.fmt = string.format('%-' .. w .. 's %s', name, path_color)
+    else
+      p.fmt = string.format('%-' .. w .. 's %s', p.name, p.path)
+    end
   end
 
   return t
 end
 
+---@class Actions
 local M = {
   fzf_files = fzf.files,
   fzf_live_grep = fzf.live_grep,
@@ -216,7 +223,7 @@ M.create_user_command = function(opts)
   vim.api.nvim_create_user_command(opts.cmd, function()
     fzf.fzf_exec(function(fzf_cb)
       local projects = store.data()
-      projects = add_ansi(projects)
+      projects = add_ansi(projects, opts.color)
 
       table.sort(projects, function(a, b)
         return a.last_visit > b.last_visit
