@@ -14,7 +14,7 @@ local M = {
     name = 'projects.nvim',
 
     -- global `user-command` in neovim.
-    cmd = 'Projects',
+    cmd = 'FzfLuaProjects',
 
     -- fzf's prompt
     prompt = 'Projects> ',
