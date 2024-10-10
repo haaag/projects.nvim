@@ -18,9 +18,9 @@ M.data = function()
   local projects = {}
 
   for _, l in pairs(lines) do
-    local name = M.get_name(l)
-    local path = M.get_path(l)
-    local last = M.get_timestamp(l)
+    local name = M.extract_name(l)
+    local path = M.extract_path(l)
+    local last = M.extract_timestamp(l)
 
     table.insert(projects, {
       name = name,
@@ -39,7 +39,7 @@ M.insert = function(p)
   M.save_state(data)
 
   if M.exists(p) then
-    util.warn(string.format("'%s' already exists", p.name))
+    util.warn("project already exists")
     return
   end
 
@@ -82,7 +82,7 @@ end
 M.exists = function(p)
   local data = M.data()
   return vim.tbl_contains(data, function(v)
-    return vim.deep_equal(v.path, p.path)
+    return vim.deep_equal(v.path, p.path) or vim.deep_equal(v.name, v.path)
   end, { predicate = true })
 end
 
@@ -156,7 +156,7 @@ M.get = function(s)
   end
 
   for _, p in ipairs(projects) do
-    if p.name == name and p.path == path then
+    if p.name == name or p.path == path then
       project = p
       break
     end
@@ -167,7 +167,7 @@ end
 
 ---@return integer
 ---@param p Project
-M.index = function(p)
+M.get_idx = function(p)
   local data = M.data()
   for i, t in ipairs(data) do
     if t.name == p.name and t.path == p.path then
@@ -179,7 +179,7 @@ M.index = function(p)
 end
 
 ---@param s string?
-M.get_name = function(s)
+M.extract_name = function(s)
   if s == nil or s == '' then
     return ''
   end
@@ -188,7 +188,7 @@ M.get_name = function(s)
 end
 
 ---@param s string?
-M.get_path = function(s)
+M.extract_path = function(s)
   if s == nil or s == '' then
     return ''
   end
@@ -197,7 +197,7 @@ M.get_path = function(s)
 end
 
 ---@param s string?
-M.get_timestamp = function(s)
+M.extract_timestamp = function(s)
   if s == nil or s == '' then
     return ''
   end

@@ -24,7 +24,7 @@ local add_ansi = function(t, c)
 
     if c then
       local name = p.exists and ansi.magenta(p.name) or ansi.red(ansi.italic(p.name))
-      local path_color = ansi.italic(p.path)
+      local path_color = p.exists and ansi.italic(p.path) or ansi.grey(p.path .. ' (not found)')
       w = w + fzf.utils.ansi_escseq_len(name) + 2
       p.fmt = string.format('%-' .. w .. 's %s', name, path_color)
     else
@@ -167,7 +167,7 @@ M.edit_path = function(s)
 
   local p = store.get(s[1])
   if p == nil then
-    util.info('nothing to edit')
+    util.info('nothing to edit: ' .. s[1])
     return
   end
 
