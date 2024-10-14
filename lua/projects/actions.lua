@@ -14,6 +14,7 @@ end
 ---@param add_icons boolean
 ---@param add_color boolean
 local add_ansi = function(t, add_color, add_icons)
+  t = util.replace_home(t)
   local ansi = fzf.utils.ansi_codes
 
   -- calculate maximum width based on project names

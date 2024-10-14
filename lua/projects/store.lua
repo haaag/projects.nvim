@@ -167,6 +167,7 @@ M.get = function(s)
   local projects = M.data()
   local project = nil
   local name, path = M.extract_name_path(s)
+  path = util.expand_tilde(path)
 
   if name == '' or path == '' then
     util.err(string.format("'%s' not found", s))

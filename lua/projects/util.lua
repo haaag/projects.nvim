@@ -1,3 +1,10 @@
+---@param f string
+---@return string, number
+local function replace_home(f)
+  local homeDir = os.getenv('HOME') or ''
+  return f:gsub(homeDir, '~')
+end
+
 ---@class Util
 local M = {}
 
@@ -48,6 +55,32 @@ M.split_newline = function(s)
     table.insert(result, line)
   end
   return result
+end
+
+---@param projects Project[]
+---@return Project[]
+M.replace_home = function(projects)
+  return vim.tbl_map(function(project)
+    project.path = replace_home(project.path)
+    return project
+  end, projects)
+end
+
+---@param f string
+---@return string
+M.expand_tilde = function(f)
+  local homeDir = os.getenv('HOME') or ''
+  local p, _ = f:gsub('~', homeDir)
+  return p
+end
+
+---@param projects Project[]
+---@return Project[]
+M.expand_tilde_in_projects = function(projects)
+  return vim.tbl_map(function(project)
+    project.path = M.expand_tilde(project.path)
+    return project
+  end, projects)
 end
 
 ---@param opts {name:string}
