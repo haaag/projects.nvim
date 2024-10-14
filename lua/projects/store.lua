@@ -205,7 +205,7 @@ M.extract_project = function(s)
   return {
     name = name,
     path = path,
-    last_visit = last_used,
+    last_visit = tonumber(last_used),
     type = projecttype,
   }
 end
@@ -225,9 +225,12 @@ M.save_state = function(p)
 end
 
 ---extract *name|path* from a string
----@param s string
+---@param s string?
 ---@return string, string
 M.extract_name_path = function(s)
+  if s == nil or s == '' then
+    return '', ''
+  end
   local _, name, path = s:match('^(%S*)%s*(%S+)%s+(.+)$')
   return name or '', path or ''
 end

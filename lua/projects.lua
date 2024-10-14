@@ -16,7 +16,7 @@ local M = {
   cmd = 'FzfLuaProjects',
 
   -- preview
-  previewer = false,
+  previewer = true,
 
   -- icons
   icons = {
