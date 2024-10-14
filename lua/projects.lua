@@ -10,33 +10,41 @@
 
 ---@class Projects
 local M = {
-  defaults = {
-    name = 'projects.nvim',
+  name = 'projects.nvim',
 
-    -- global `user-command` in neovim.
-    cmd = 'FzfLuaProjects',
+  -- `user-command` in neovim.
+  cmd = 'FzfLuaProjects',
 
-    -- fzf's prompt
-    prompt = 'Projects> ',
+  -- file store ($XDG_DATA_HOME/nvim || ~/.local/share/nvim)
+  fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
 
-    -- preview
-    previewer = false,
+  -- preview
+  previewer = false,
 
-    -- project's store
-    fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
-
-    -- color output
-    color = true,
+  -- icons
+  icons = {
+    default = '',
+    warning = '',
+    color = '#6d8086',
+    enabled = true,
   },
+
+  -- file store ($XDG_DATA_HOME/nvim || ~/.local/share/nvim)
+  fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
+
+  -- color output
+  color = true,
 }
 
 ---@param opts? Projects
 M.setup = function(opts)
-  opts = opts or {}
-  opts = vim.tbl_deep_extend('keep', opts, M.defaults)
+  opts = vim.tbl_deep_extend('keep', opts or {}, M)
   require('projects.util').setup(opts)
   require('projects.store').setup(opts)
   require('projects.actions').setup(opts)
+  if opts.icons.enabled then
+    require('projects.icons').setup(opts.icons)
+  end
 end
 
 return M

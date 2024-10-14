@@ -151,9 +151,13 @@ function M.get_root()
   if path then
     for _, client in pairs(vim.lsp.get_clients({ bufnr = 0 })) do
       local workspace = client.config.workspace_folders
-      local paths = workspace and vim.tbl_map(function(ws)
-        return vim.uri_to_fname(ws.uri)
-      end, workspace) or client.config.root_dir and { client.config.root_dir } or {}
+      local paths = workspace
+          and vim.tbl_map(function(ws)
+            -- vim.print('>>>>>>>', ws.uri, '<<<<<<<<<')
+            return vim.uri_to_fname(ws.uri)
+          end, workspace)
+        or client.config.root_dir and { client.config.root_dir }
+        or {}
       for _, p in ipairs(paths) do
         local r = vim.loop.fs_realpath(p)
         if path:find(r, 1, true) then
@@ -168,10 +172,11 @@ function M.get_root()
   ---@type string?
   local root = roots[1]
   if not root then
-    path = path and vim.fs.dirname(path) or vim.loop.cwd()
-    ---@type string?
-    root = vim.fs.find(root_patterns, { path = path, upward = true })[1]
-    root = root and vim.fs.dirname(root) or vim.loop.cwd()
+    root = vim.loop.cwd()
+    -- path = path and vim.fs.dirname(path) or vim.loop.cwd()
+    -- ---@type string?
+    -- root = vim.fs.find(root_patterns, { path = path, upward = true })[1]
+    -- root = root and vim.fs.dirname(root) or vim.loop.cwd()
   end
   ---@cast root string
   return root

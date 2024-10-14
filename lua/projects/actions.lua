@@ -11,25 +11,37 @@ end
 
 ---@return  Project[]
 ---@param t Project[]
----@param c boolean add color to items
-local add_ansi = function(t, c)
+---@param add_icons boolean
+---@param add_color boolean
+local add_ansi = function(t, add_color, add_icons)
   local ansi = fzf.utils.ansi_codes
-  local width = 0
-  for _, v in ipairs(t) do
-    width = math.max(width, #v.name)
+
+  -- calculate maximum width based on project names
+  local widths = vim.tbl_map(function(p)
+    return #p.name
+  end, t)
+  local width = math.max(unpack(widths))
+
+  local format_name = function(p)
+    if add_color then
+      local name
+      if add_icons then
+        local color = require('projects.icons').color_by_ft(p.type)
+        name = p.exists and fzf.utils.ansi_from_rgb(color, p.name) or ansi.red(p.name)
+      else
+        name = p.exists and ansi.cyan(p.name) or ansi.red(p.name)
+      end
+      return name
+    else
+      return p.name
+    end
   end
 
   for _, p in ipairs(t) do
-    local w = width
-
-    if c then
-      local name = p.exists and ansi.magenta(p.name) or ansi.red(ansi.italic(p.name))
-      local path_color = p.exists and ansi.italic(p.path) or ansi.grey(p.path .. ' (not found)')
-      w = w + fzf.utils.ansi_escseq_len(name) + 2
-      p.fmt = string.format('%-' .. w .. 's %s', name, path_color)
-    else
-      p.fmt = string.format('%-' .. w .. 's %s', p.name, p.path)
-    end
+    local name = format_name(p)
+    local path_color = p.exists and ansi.italic(p.path) or ansi.grey(p.path .. ' (not found)')
+    local w = width + fzf.utils.ansi_escseq_len(name) + 2
+    p.fmt = string.format('%-' .. w .. 's %s', name, path_color)
   end
 
   return t
@@ -100,6 +112,7 @@ M.add = function(_)
     name = name,
     path = root,
     last_visit = os.time(),
+    type = 'default',
   }
 
   store.insert(project)
@@ -186,17 +199,46 @@ M.edit_path = function(s)
   M.fzf_resume()
 end
 
+---@param s table<string?>
+M.edit_type = function(s)
+  if s == nil then
+    util.info('nothing to edit')
+    return
+  end
+
+  local p = store.get(s[1])
+  if p == nil then
+    util.info('nothing to edit: ' .. s[1])
+    return
+  end
+
+  local prompt_opts = {
+    prompt = 'New type: ',
+    default = p.type,
+  }
+
+  vim.ui.input(prompt_opts, function(input)
+    if not input or #input == 0 then
+      return
+    end
+    store.edit_type(input, p)
+  end)
+
+  M.fzf_resume()
+end
+
 ---@return string
 ---@param act Action[]
 M.create_header = function(act)
   local result = ''
-  local sep = '  '
+  local sep = ' '
   local count = 0
+  local n = vim.tbl_count(act)
   for _, t in pairs(act) do
     count = count + 1
     if t.header then
-      local key = string.format('%s:%s', t.keybind, t.title)
-      if count == vim.tbl_count(act) then
+      local key = string.format('%s:%s', fzf.utils.ansi_codes.yellow(t.keybind), t.title)
+      if count == n then
         result = result .. key
       else
         result = result .. key .. sep
@@ -223,7 +265,11 @@ M.create_user_command = function(opts)
   vim.api.nvim_create_user_command(opts.cmd, function()
     fzf.fzf_exec(function(fzf_cb)
       local projects = store.data()
-      projects = add_ansi(projects, opts.color)
+      projects = add_ansi(projects, opts.color, opts.icons.enabled)
+
+      if opts.icons.enabled then
+        projects = require('projects.icons').load(projects, opts.color)
+      end
 
       table.sort(projects, function(a, b)
         return a.last_visit > b.last_visit
@@ -281,6 +327,12 @@ M.defaults = {
     keybind = 'ctrl-e',
     header = true,
     fn = M.edit_path,
+  },
+  edit_type = {
+    title = 'edit type',
+    keybind = 'ctrl-t',
+    header = true,
+    fn = M.edit_type,
   },
 }
 

@@ -4,10 +4,13 @@ local pathlib = require('projects.path')
 ---@class Store
 local M = {}
 
----@alias Project { name:string, path:string, fmt:string, last_visit:integer, exists:boolean }
+---@alias Project { name:string, path:string, fmt:string, last_visit:integer, exists:boolean, type:string, icon:string }
 
 ---@type string?
 M.fname = nil
+
+---@type boolean
+M.icons = false
 
 ---@type Project[]
 M.state = {}
@@ -18,16 +21,14 @@ M.data = function()
   local projects = {}
 
   for _, l in pairs(lines) do
-    local name = M.extract_name(l)
-    local path = M.extract_path(l)
-    local last = M.extract_timestamp(l)
+    local project = M.extract_project(l)
+    project.exists = pathlib.exists(project.path)
+    -- add icon
+    if M.icons then
+      project.icon = require('projects.icons').get_by_ft(project.type)
+    end
 
-    table.insert(projects, {
-      name = name,
-      path = path,
-      last_visit = last,
-      exists = pathlib.exists(path),
-    })
+    table.insert(projects, project)
   end
 
   return projects
@@ -39,7 +40,7 @@ M.insert = function(p)
   M.save_state(data)
 
   if M.exists(p) then
-    util.warn("project already exists")
+    util.warn('project already exists')
     return
   end
 
@@ -121,6 +122,23 @@ M.edit_path = function(path, p)
   return p
 end
 
+---@return Project
+---@param p Project
+---@param new_type string
+M.edit_type = function(new_type, p)
+  local data = M.data()
+  M.save_state(data)
+  local projects = M.filter(data, p)
+
+  p.type = new_type
+  util.info(string.format("project '%s' type '%s'", p.name, p.type))
+  table.insert(projects, p)
+
+  local projects_fmt = M.fmt_to_store(projects)
+  pathlib.write(M.fname, projects_fmt)
+  return p
+end
+
 ---@return boolean
 M.restore = function()
   if M.state == nil or vim.tbl_isempty(M.state) then
@@ -148,7 +166,7 @@ M.get = function(s)
 
   local projects = M.data()
   local project = nil
-  local name, path = M.extract(s)
+  local name, path = M.extract_name_path(s)
 
   if name == '' or path == '' then
     util.err(string.format("'%s' not found", s))
@@ -178,30 +196,17 @@ M.get_idx = function(p)
   return -1
 end
 
----@param s string?
-M.extract_name = function(s)
-  if s == nil or s == '' then
-    return ''
-  end
-
-  return s:match('^(.-)=') or 'name-not-found'
-end
-
----@param s string?
-M.extract_path = function(s)
-  if s == nil or s == '' then
-    return ''
-  end
-
-  return s:match('=(.+)=%d+$') or 'path-not-found'
-end
-
----@param s string?
-M.extract_timestamp = function(s)
-  if s == nil or s == '' then
-    return ''
-  end
-  return s:match('=(%d+)$') or '0'
+---@return Project
+---@param s string
+M.extract_project = function(s)
+  -- line: project_name=path=last_visit=type
+  local name, path, last_used, projecttype = s:match('([^=]+)=([^=]+)=([^=]+)=([^=]+)')
+  return {
+    name = name,
+    path = path,
+    last_visit = last_used,
+    type = projecttype,
+  }
 end
 
 ---@return Project[]
@@ -221,15 +226,15 @@ end
 ---extract *name|path* from a string
 ---@param s string
 ---@return string, string
-M.extract = function(s)
-  local name, path = s:match('^(%S+)%s+(.+)$')
+M.extract_name_path = function(s)
+  local _, name, path = s:match('^(%S*)%s*(%S+)%s+(.+)$')
   return name or '', path or ''
 end
 
 ---@param p Project
 ---@return string
 M.fmt_line = function(p)
-  return string.format('%s=%s=%s\n', p.name, p.path, p.last_visit)
+  return string.format('%s=%s=%s=%s\n', p.name, p.path, p.last_visit, p.type)
 end
 
 ---format items to store in file.
@@ -243,9 +248,10 @@ M.fmt_to_store = function(t)
   return projects
 end
 
----@param opts { fname:string }
+---@param opts { fname:string, icons:table }
 M.setup = function(opts)
   M.fname = opts.fname
+  M.icons = opts.icons.enabled
   pathlib.touch(opts.fname)
 end
 
