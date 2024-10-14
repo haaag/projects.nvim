@@ -153,7 +153,6 @@ function M.get_root()
       local workspace = client.config.workspace_folders
       local paths = workspace
           and vim.tbl_map(function(ws)
-            -- vim.print('>>>>>>>', ws.uri, '<<<<<<<<<')
             return vim.uri_to_fname(ws.uri)
           end, workspace)
         or client.config.root_dir and { client.config.root_dir }

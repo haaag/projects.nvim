@@ -15,11 +15,8 @@ local M = {
   -- `user-command` in neovim.
   cmd = 'FzfLuaProjects',
 
-  -- file store ($XDG_DATA_HOME/nvim || ~/.local/share/nvim)
-  fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
-
   -- preview
-  previewer = false,
+  previewer = true,
 
   -- icons
   icons = {

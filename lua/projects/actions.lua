@@ -7,7 +7,27 @@ if not ok then
   return
 end
 
+local ansi = fzf.utils.ansi_codes
+
 ---@alias Action { title:string, keybind:string, fn:function, header:boolean }
+
+--- YYYY-MM-DD HH:MM:SS
+---@param timestamp number
+---@return string
+local function format_last_visit(timestamp)
+  local date = os.date('*t', timestamp)
+  return string.format('%04d-%02d-%02d %02d:%02d:%02d', date.year, date.month, date.day, date.hour, date.min, date.sec)
+end
+
+---@param s table<string>
+local function previewer(s)
+  local p = store.get(s[1])
+  if not p then
+    return ''
+  end
+
+  return 'last visited: ' .. format_last_visit(p.last_visit)
+end
 
 ---@return  Project[]
 ---@param t Project[]
@@ -15,7 +35,6 @@ end
 ---@param add_color boolean
 local add_ansi = function(t, add_color, add_icons)
   t = util.replace_home(t)
-  local ansi = fzf.utils.ansi_codes
 
   -- calculate maximum width based on project names
   local widths = vim.tbl_map(function(p)
@@ -341,6 +360,11 @@ M.defaults = {
 M.setup = function(opts)
   opts.header = opts.header or M.create_header(M.defaults)
   opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults))
+  if opts.previewer then
+    opts.fzf_opts = {}
+    opts.fzf_opts['--preview'] = previewer
+    opts.fzf_opts['--preview-window'] = 'nohidden,down,10%,border-top,+{3}+3/3,~3'
+  end
   M.create_user_command(opts)
 end
 
