@@ -5,7 +5,6 @@ Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager.
 > [!WARNING]
 > This plugin is _beta_ quality. Expect breaking changes and many bugs
 
-
 <div align="left">
   <img align="center" src="assets/pic.png">
 </div>
@@ -38,7 +37,9 @@ require('projects').setup({
   -- fzf's prompt
   prompt = 'Projects> ',
   -- preview
-  previewer = false,
+  previewer = {
+    enabled = true,
+  },
   -- icons
   icons = {
     default = '',

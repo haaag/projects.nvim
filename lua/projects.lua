@@ -14,7 +14,9 @@ local M = {
   -- `user-command` in neovim.
   cmd = 'FzfLuaProjects',
   -- preview
-  previewer = true,
+  previewer = {
+    enabled = true,
+  },
   -- fzf's prompt
   prompt = 'Projects> ',
   -- icons

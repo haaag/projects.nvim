@@ -12,6 +12,7 @@ local ansi = fzf.utils.ansi_codes
 ---@alias Action { title:string, keybind:string, fn:function, header:boolean }
 ---@alias Keymaps { add:Action, edit_path:Action, edit_type:Action, grep:Action, remove:Action, rename:Action, restore:Action }
 
+---@return string
 ---@param s table<string>
 local function previewer(s)
   local p = store.get(s[1])
@@ -360,7 +361,7 @@ end
 M.setup = function(opts)
   opts.header = opts.header or M.create_header(M.defaults(opts.keymap))
   opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults(opts.keymap)))
-  if opts.previewer then
+  if opts.previewer.enabled then
     opts.fzf_opts = {}
     opts.fzf_opts['--preview'] = previewer
     opts.fzf_opts['--preview-window'] = 'nohidden,down,10%,border-top,+{3}+3/3,~3'
