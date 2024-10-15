@@ -34,6 +34,10 @@ end
 ---@param add_icons boolean
 ---@param add_color boolean
 local add_ansi = function(t, add_color, add_icons)
+  if vim.tbl_count(t) == 0 then
+    return t
+  end
+
   t = util.replace_home(t)
 
   -- calculate maximum width based on project names
