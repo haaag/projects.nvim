@@ -10,14 +10,7 @@ end
 local ansi = fzf.utils.ansi_codes
 
 ---@alias Action { title:string, keybind:string, fn:function, header:boolean }
-
---- YYYY-MM-DD HH:MM:SS
----@param timestamp number
----@return string
-local function format_last_visit(timestamp)
-  local date = os.date('*t', timestamp)
-  return string.format('%04d-%02d-%02d %02d:%02d:%02d', date.year, date.month, date.day, date.hour, date.min, date.sec)
-end
+---@alias Keymaps { add:Action, edit_path:Action, edit_type:Action, grep:Action, remove:Action, rename:Action, restore:Action }
 
 ---@param s table<string>
 local function previewer(s)
@@ -26,7 +19,7 @@ local function previewer(s)
     return ''
   end
 
-  return 'last visited: ' .. format_last_visit(p.last_visit)
+  return 'last visited: ' .. util.format_last_visit(p.last_visit)
 end
 
 ---@return  Project[]
@@ -34,7 +27,7 @@ end
 ---@param add_icons boolean
 ---@param add_color boolean
 local add_ansi = function(t, add_color, add_icons)
-  if vim.tbl_count(t) == 0 then
+  if vim.tbl_isempty(t) then
     return t
   end
 
@@ -308,62 +301,65 @@ M.create_user_command = function(opts)
   end, {})
 end
 
----@type Action[]
-M.defaults = {
-  enter = {
-    title = 'default',
-    keybind = 'default',
-    fn = M.open,
-    header = false,
-  },
-  add = {
-    title = 'add',
-    keybind = 'ctrl-a',
-    header = true,
-    fn = M.add,
-  },
-  grep = {
-    title = 'grep',
-    keybind = 'ctrl-g',
-    header = true,
-    fn = M.grep,
-  },
-  rename = {
-    title = 'rename',
-    keybind = 'ctrl-r',
-    header = true,
-    fn = M.rename,
-  },
-  restore = {
-    title = 'restore',
-    keybind = 'ctrl-u',
-    header = true,
-    fn = M.restore,
-  },
-  remove = {
-    title = 'remove',
-    keybind = 'ctrl-x',
-    header = true,
-    fn = M.remove,
-  },
-  edit_path = {
-    title = 'edit path',
-    keybind = 'ctrl-e',
-    header = true,
-    fn = M.edit_path,
-  },
-  edit_type = {
-    title = 'edit type',
-    keybind = 'ctrl-t',
-    header = true,
-    fn = M.edit_type,
-  },
-}
+---@return Keymaps
+---@param keymap {  add:string, edit_path:string, edit_type:string, grep:string, remove:string, rename:string, restore:string }
+M.defaults = function(keymap)
+  return {
+    enter = {
+      title = 'default',
+      keybind = 'default',
+      fn = M.open,
+      header = false,
+    },
+    add = {
+      title = 'add',
+      keybind = keymap.add,
+      header = true,
+      fn = M.add,
+    },
+    edit_path = {
+      title = 'path',
+      keybind = keymap.edit_path,
+      header = true,
+      fn = M.edit_path,
+    },
+    edit_type = {
+      title = 'type',
+      keybind = keymap.edit_type,
+      header = true,
+      fn = M.edit_type,
+    },
+    grep = {
+      title = 'grep',
+      keybind = keymap.grep,
+      header = true,
+      fn = M.grep,
+    },
+    remove = {
+      title = 'remove',
+      keybind = keymap.remove,
+      header = true,
+      fn = M.remove,
+    },
+    rename = {
+      title = 'rename',
+      keybind = keymap.rename,
+      header = true,
+      fn = M.rename,
+    },
+    restore = {
+      title = 'restore',
+      keybind = keymap.restore,
+      header = true,
+      fn = M.restore,
+    },
+  }
+end
 
 ---@param opts table
 M.setup = function(opts)
-  opts.header = opts.header or M.create_header(M.defaults)
-  opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults))
+  opts.header = opts.header or M.create_header(M.defaults(opts.keymap))
+  opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults(opts.keymap)))
   if opts.previewer then
     opts.fzf_opts = {}
     opts.fzf_opts['--preview'] = previewer

@@ -11,13 +11,12 @@
 ---@class Projects
 local M = {
   name = 'projects.nvim',
-
   -- `user-command` in neovim.
   cmd = 'FzfLuaProjects',
-
   -- preview
   previewer = true,
-
+  -- fzf's prompt
+  prompt = 'Projects> ',
   -- icons
   icons = {
     default = '',
@@ -25,12 +24,20 @@ local M = {
     color = '#6d8086',
     enabled = true,
   },
-
   -- file store ($XDG_DATA_HOME/nvim || ~/.local/share/nvim)
   fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
-
   -- color output
   color = true,
+  -- keybinds
+  keymap = {
+    add = 'ctrl-a',
+    edit_path = 'ctrl-e',
+    edit_type = 'ctrl-t',
+    grep = 'ctrl-g',
+    remove = 'ctrl-x',
+    rename = 'ctrl-r',
+    restore = 'ctrl-u',
+  },
 }
 
 ---@param opts? Projects

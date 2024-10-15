@@ -48,6 +48,16 @@ require('projects').setup({
   },
   -- enable color output
   color = true,
+  -- keybinds
+  keymap = {
+    add = 'ctrl-a',
+    edit_path = 'ctrl-e',
+    edit_type = 'ctrl-t',
+    grep = 'ctrl-g',
+    remove = 'ctrl-x',
+    rename = 'ctrl-r',
+    restore = 'ctrl-u',
+  },
 })
 ```
 

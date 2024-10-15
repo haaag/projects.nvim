@@ -83,6 +83,14 @@ M.expand_tilde_in_projects = function(projects)
   end, projects)
 end
 
+--- YYYY-MM-DD HH:MM:SS
+---@param timestamp number
+---@return string
+M.format_last_visit = function(timestamp)
+  local date = os.date('*t', timestamp)
+  return string.format('%04d-%02d-%02d %02d:%02d:%02d', date.year, date.month, date.day, date.hour, date.min, date.sec)
+end
+
 ---@param opts {name:string}
 M.setup = function(opts)
   M.prefix = opts.name
