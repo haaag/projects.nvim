@@ -5,6 +5,11 @@ Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager.
 > [!WARNING]
 > This plugin is _beta_ quality. Expect breaking changes and many bugs
 
+
+<div align="left">
+  <img align="center" src="assets/pic.png">
+</div>
+
 ## Installation
 
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
@@ -32,7 +37,7 @@ require('projects').setup({
   fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
   -- fzf's prompt
   prompt = 'Projects> ',
-  -- preview (wip)
+  -- preview
   previewer = false,
   -- icons
   icons = {
