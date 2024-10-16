@@ -16,7 +16,10 @@ Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager.
 ```lua
 {
   'haaag/projects.nvim',
-  dependencies = { 'ibhagwan/fzf-lua' },
+  dependencies = {
+    "ibhagwan/fzf-lua",
+    "nvim-tree/nvim-web-devicons", -- optional
+  },
   opts = {},
   keys = {
     { '<leader>sp', '<CMD>FzfLuaProjects<CR>', desc = 'search projects' },
