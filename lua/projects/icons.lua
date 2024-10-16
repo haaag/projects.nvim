@@ -29,6 +29,10 @@ end
 ---@return string
 ---@param ft string
 M.color_by_ft = function(ft)
+  if ft == 'default' then
+    return M.default_color
+  end
+
   ---@type Icon?
   local i = M.get(ft)
   if i ~= nil then
