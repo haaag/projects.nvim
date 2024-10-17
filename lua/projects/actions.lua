@@ -362,10 +362,14 @@ M.setup = function(opts)
   opts.header = opts.header or M.create_header(M.defaults(opts.keymap))
   opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults(opts.keymap)))
   if opts.previewer.enabled then
-    opts.fzf_opts = {}
-    opts.fzf_opts['--preview'] = previewer
-    opts.fzf_opts['--preview-window'] = 'nohidden,down,10%,border-top,+{3}+3/3,~3'
+    opts.fzf_opts = {
+      ['--preview'] = previewer,
+      ['--preview-window'] = 'nohidden,down,10%,border-top,+{3}+3/3,~3',
+    }
   end
+  -- remove key, conflict with `fzf-lua`
+  opts.previewer = nil
+
   M.create_user_command(opts)
 end
 

@@ -1,6 +1,6 @@
 # 💥 Projects fzf
 
-Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager.
+Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager for [`neovim`](https://github.com/neovim/neovim/releases).
 
 > [!WARNING]
 > This plugin is _beta_ quality. Expect breaking changes and many bugs
@@ -9,7 +9,14 @@ Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager.
   <img align="center" src="assets/pic.png">
 </div>
 
-## Installation
+## ⚡️ Dependencies
+
+- [`neovim`](https://github.com/neovim/neovim/releases) <small>version >=</small> `0.9.0`
+- [`fzf-lua`](https://github.com/ibhagwan/fzf-lua) <small>neovim plug-in</small>
+- [`nvim-web-devicons`](https://github.com/nvim-tree/nvim-web-devicons)
+  <small><i><b>optional</b></i></small>
+
+## 📦 Installation
 
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -29,14 +36,14 @@ Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager.
 ```
 
 <details>
-<summary><strong>Default configuration</strong></summary>
+<summary><strong>⚙️ Default configuration</strong></summary>
 
 ```lua
 require('projects').setup({
   -- `user-command` in neovim
   cmd = 'FzfLuaProjects',
   -- file store ($XDG_DATA_HOME/nvim || ~/.local/share/nvim)
-  fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
+  fname = vim.fn.stdpath('data') .. '/projects.json',
   -- fzf's prompt
   prompt = 'Projects> ',
   -- preview

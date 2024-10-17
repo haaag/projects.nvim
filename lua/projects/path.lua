@@ -41,48 +41,47 @@ M.append = function(fname, s)
   return true
 end
 
----@return string[]
+---@return Project[]
 ---@param fname string?
-M.read = function(fname)
-  local lines = {}
-  if fname == '' or fname == nil then
-    util.err('read: filename can not be empty')
-    return lines
+M.readfile = function(fname)
+  if not fname or vim.fn.filereadable(fname) == 0 then
+    return {}
   end
 
-  local file = io.open(fname, 'r')
-  if not file then
-    util.err(fname .. ' not found')
-    return lines
+  local data = vim.fn.readfile(vim.fn.expand(fname))
+  if vim.tbl_count(data) == 0 then
+    return {}
   end
 
-  for l in file:lines() do
-    table.insert(lines, l)
-  end
-
-  file:close()
-
-  return lines
+  return vim.fn.json_decode(data)
 end
 
+---@return boolean
 ---@param fname string
----@param t string[]
-M.write = function(fname, t)
-  if vim.tbl_isempty(t) then
-    util.err('saving projects: table is empty')
-  end
-
-  local file, err = io.open(fname, 'w')
-  if not file then
-    util.err('Error opening file: ' .. err)
+---@param t Project[]
+M.writefile = function(fname, t)
+  if vim.fn.filewritable(fname) == 0 then
+    util.err("write: file: '" .. fname .. "' not writable")
     return false
   end
 
-  for _, s in ipairs(t) do
-    file:write(s)
+  if vim.tbl_isempty(t) then
+    util.err('write: no data')
+    return false
   end
 
-  file:close()
+  local data = vim.fn.json_encode(t)
+  if not data then
+    util.err('write: failed to encode data to JSON')
+    return false
+  end
+
+  local success, err = pcall(vim.fn.writefile, { data }, fname)
+  if not success then
+    util.err('write: ' .. err)
+  end
+
+  return success
 end
 
 ---@return boolean

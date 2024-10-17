@@ -26,25 +26,7 @@ end
 M.err = function(s)
   local mesg = string.format('%s: %s', M.prefix, s)
   vim.api.nvim_echo({ { mesg, 'ErrorMsg' } }, true, {})
-end
-
----@param path string
----@return string
-M.fmt_home_path = function(path)
-  local h = os.getenv('HOME')
-  if not h then
-    return path
-  end
-
-  local s, _ = string.gsub(path, h, '~')
-  return s
-end
-
----@param str string
----@param target string
----@return boolean
-M.startswith = function(str, target)
-  return string.sub(str, 1, 1) == target
+  error()
 end
 
 ---@param s string
@@ -72,15 +54,6 @@ M.expand_tilde = function(f)
   local homeDir = os.getenv('HOME') or ''
   local p, _ = f:gsub('~', homeDir)
   return p
-end
-
----@param projects Project[]
----@return Project[]
-M.expand_tilde_in_projects = function(projects)
-  return vim.tbl_map(function(project)
-    project.path = M.expand_tilde(project.path)
-    return project
-  end, projects)
 end
 
 --- YYYY-MM-DD HH:MM:SS

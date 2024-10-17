@@ -27,7 +27,7 @@ local M = {
     enabled = true,
   },
   -- file store ($XDG_DATA_HOME/nvim || ~/.local/share/nvim)
-  fname = vim.fn.stdpath('data') .. '/nvim-projects.txt',
+  fname = vim.fn.stdpath('data') .. '/projects.json',
   -- color output
   color = true,
   -- keybinds
