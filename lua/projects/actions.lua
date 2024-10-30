@@ -96,8 +96,7 @@ function M.load_project(s)
     return false
   end
 
-  p.last_visit = os.time()
-  store.update(p)
+  M.update_last_visit(p)
 
   return true
 end
@@ -108,7 +107,12 @@ M.grep = function(s)
     return
   end
 
-  M.fzf_live_grep()
+  local p = store.get(s[1])
+  if not p then
+    return
+  end
+
+  M.fzf_live_grep({ cwd = p.path })
   M.fzf_resume()
 end
 
@@ -118,7 +122,12 @@ M.open = function(s)
     return
   end
 
-  M.fzf_files()
+  local p = store.get(s[1])
+  if not p then
+    return
+  end
+
+  M.fzf_files({ cwd = p.path })
 end
 
 M.add = function(_)
@@ -243,6 +252,12 @@ M.edit_type = function(s)
   end)
 
   M.fzf_resume()
+end
+
+---@param p Project
+M.update_last_visit = function(p)
+  p.last_visit = os.time()
+  store.update(p)
 end
 
 ---@return string

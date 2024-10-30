@@ -49,7 +49,7 @@ M.insert = function(p)
     return
   end
 
-  util.info(string.format("project '%s' added", p.name))
+  util.info(string.format("'%s' added", p.name))
 end
 
 ---@param p Project
@@ -91,7 +91,7 @@ M.rename = function(new_name, p)
   local old_name = p.name
 
   p.name = new_name
-  util.info(string.format("project '%s' renamed to '%s'", old_name, new_name))
+  util.info(string.format("'%s' renamed to '%s'", old_name, new_name))
   table.insert(projects, p)
 
   pathlib.writefile(M.fname, projects)
@@ -107,7 +107,7 @@ M.edit_path = function(path, p)
   local projects = M.filter(data, p)
 
   p.path = path
-  util.info(string.format("project '%s' new path '%s'", p.name, p.path))
+  util.info(string.format("'%s' new path '%s'", p.name, p.path))
   table.insert(projects, p)
 
   pathlib.writefile(M.fname, projects)
@@ -123,7 +123,7 @@ M.edit_type = function(new_type, p)
   local projects = M.filter(data, p)
 
   p.type = new_type
-  util.info(string.format("project '%s' type '%s'", p.name, p.type))
+  util.info(string.format("'%s' type '%s'", p.name, p.type))
   table.insert(projects, p)
 
   pathlib.writefile(M.fname, projects)

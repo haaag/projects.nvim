@@ -3,7 +3,7 @@
 Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager for [`neovim`](https://github.com/neovim/neovim/releases).
 
 > [!WARNING]
-> This plugin is _beta_ quality. Expect breaking changes and many bugs
+> This is currently a work in progress, expect things to be broken!
 
 <div align="left">
   <img align="center" src="assets/pic.png">
