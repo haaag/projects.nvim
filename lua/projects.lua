@@ -75,13 +75,20 @@ local M = {
 
 ---@param opts? Projects
 M.setup = function(opts)
-  opts = vim.tbl_deep_extend('keep', opts or {}, M)
-  require('projects.util').setup(opts)
-  require('projects.store').setup(opts)
-  require('projects.actions').setup(opts)
-  if opts.icons.enabled then
-    require('projects.icons').setup(opts.icons)
-  end
+  vim.api.nvim_create_user_command(M.cmd, function()
+    opts = vim.tbl_deep_extend('keep', opts or {}, M)
+    require('projects.util').setup(opts)
+    if opts.icons.enabled then
+      -- check if user installed a icons provider
+      local ok, _ = pcall(require, 'projects.icons')
+      if not ok then
+        return
+      end
+      require('projects.icons').setup(opts.icons)
+    end
+    require('projects.store').setup(opts)
+    require('projects.actions').setup(opts)
+  end, {})
 end
 
 return M

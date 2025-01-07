@@ -391,18 +391,24 @@ end
 
 ---@param opts? Projects
 M.setup = function(opts)
-  opts.header = opts.header or M.create_header(M.defaults(opts.keymap))
-  opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults(opts.keymap)))
+  opts = opts or {}
+  local key_actions = M.defaults(opts.keymap)
+  opts.fzf = opts.fzf or {}
+  opts.fzf.header = opts.fzf.header or M.create_header(key_actions)
+  opts.fzf.actions = vim.tbl_deep_extend('keep', opts.fzf.actions or {}, M.load_actions(key_actions))
+
   if opts.previewer.enabled then
-    opts.fzf_opts = {
+    opts.fzf.fzf_opts = {
       ['--preview'] = previewer,
       ['--preview-window'] = 'nohidden,down,10%,border-top,+{3}+3/3,~3',
     }
   end
-  -- remove key, conflict with `fzf-lua`
+  -- set `previewer` to nil, conflicts with `fzf-lua`
   opts.previewer = nil
+  -- add prompt, defaults to `Projects> `
+  opts.fzf.fzf_opts['--prompt'] = opts.prompt ~= '' and opts.prompt or 'Projects> '
 
-  M.create_user_command(opts)
+  M.load(opts)
 end
 
 return M

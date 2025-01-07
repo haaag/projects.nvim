@@ -141,7 +141,6 @@ end
 function M.get_root()
   -- NOTE: extracted from `https://github.com/LazyVim/LazyVim`
   -- thanks @folke
-  local root_patterns = { '.git', '/lua' }
   ---@type string?
   local path = vim.api.nvim_buf_get_name(0)
   path = path ~= '' and vim.loop.fs_realpath(path) or nil

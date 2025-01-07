@@ -1,4 +1,6 @@
 # 💥 Projects fzf
+[![Neovim](https://img.shields.io/badge/Neovim-57A143?logo=neovim&logoColor=fff)](#)
+[![Lua](https://img.shields.io/badge/Lua-%232C2D72.svg?logo=lua&logoColor=white)](#)
 
 Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager for [`neovim`](https://github.com/neovim/neovim/releases).
 
@@ -13,8 +15,8 @@ Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager for [`
 
 - [`neovim`](https://github.com/neovim/neovim/releases) <small>version >=</small> `0.9.0`
 - [`fzf-lua`](https://github.com/ibhagwan/fzf-lua) <small>neovim plug-in</small>
-- [`nvim-web-devicons`](https://github.com/nvim-tree/nvim-web-devicons)
-  <small><i><b>optional</b></i></small>
+- [`nvim-web-devicons`](https://github.com/nvim-tree/nvim-web-devicons) or [`mini.icons`](https://github.com/echasnovski/mini.icons)
+  <small><i><b>(optional)</b></i></small>
 
 ## 📦 Installation
 
@@ -25,7 +27,10 @@ Simple [fzf-lua](https://github.com/ibhagwan/fzf-lua.git) project manager for [`
   'haaag/projects.nvim',
   dependencies = {
     "ibhagwan/fzf-lua",
-    "nvim-tree/nvim-web-devicons", -- optional
+    -- optional icons
+    "nvim-tree/nvim-web-devicons",
+    -- or
+    "echasnovski/mini.icons",
   },
   opts = {},
   keys = {
