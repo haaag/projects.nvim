@@ -43,19 +43,8 @@ M.color_by_ft = function(ft)
   return color or M.default_color
 end
 
----@return Icon?
----@param s string
-M.get = function(s)
-  s = string.lower(s)
-  for _, t in pairs(M.all) do
-    if string.lower(t.name) == s then
-      return t
-    end
-  end
-end
-
----@return  Project[]
----@param t Project[]
+---@return  Projects.Project[]
+---@param t Projects.Project[]
 ---@param add_color boolean
 M.load = function(t, add_color)
   local fzf = require('fzf-lua.utils')

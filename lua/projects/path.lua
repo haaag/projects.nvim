@@ -41,7 +41,7 @@ M.append = function(fname, s)
   return true
 end
 
----@return Project[]
+---@return Projects.Project[]
 ---@param fname string?
 M.readfile = function(fname)
   if not fname or vim.fn.filereadable(fname) == 0 then
@@ -58,7 +58,7 @@ end
 
 ---@return boolean
 ---@param fname string
----@param t Project[]
+---@param t Projects.Project[]
 M.writefile = function(fname, t)
   if vim.fn.filewritable(fname) == 0 then
     util.err("write: file: '" .. fname .. "' not writable")

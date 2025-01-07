@@ -39,8 +39,8 @@ M.split_newline = function(s)
   return result
 end
 
----@param projects Project[]
----@return Project[]
+---@param projects Projects.Project[]
+---@return Projects.Project[]
 M.replace_home = function(projects)
   return vim.tbl_map(function(project)
     project.path = replace_home(project.path)
@@ -64,8 +64,16 @@ M.format_last_visit = function(timestamp)
   return string.format('%04d-%02d-%02d %02d:%02d:%02d', date.year, date.month, date.day, date.hour, date.min, date.sec)
 end
 
----@param opts {name:string}
+-- convert to hex
+---@param color number
+---@return string
+M.convert_to_hex = function(color)
+  return string.format('#%06x', color)
+end
+
+---@param opts? Projects
 M.setup = function(opts)
+  opts = opts or {}
   M.prefix = opts.name
 end
 

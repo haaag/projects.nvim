@@ -4,18 +4,16 @@ local pathlib = require('projects.path')
 ---@class Store
 local M = {}
 
----@alias Project { name:string, path:string, fmt:string, last_visit:integer, exists:boolean, type:string, icon:string }
-
 ---@type string?
 M.fname = nil
 
 ---@type boolean
 M.icons = false
 
----@type Project[]
+---@type Projects.Project[]
 M.state = {}
 
----@return Project[]
+---@return Projects.Project[]
 M.data = function()
   local data = pathlib.readfile(M.fname)
   local projects = {}
@@ -34,7 +32,7 @@ M.data = function()
   return projects
 end
 
----@param p Project
+---@param p Projects.Project
 M.insert = function(p)
   local data = M.data()
   M.save_state(data)
@@ -52,7 +50,7 @@ M.insert = function(p)
   util.info(string.format("'%s' added", p.name))
 end
 
----@param p Project
+---@param p Projects.Project
 M.remove = function(p)
   local data = M.data()
   local projects = M.filter(data, p)
@@ -62,7 +60,7 @@ M.remove = function(p)
   util.info(string.format("'%s' deleted", p.name))
 end
 
----@param p Project
+---@param p Projects.Project
 M.update = function(p)
   local data = M.data()
   M.save_state(data)
@@ -73,7 +71,7 @@ M.update = function(p)
 end
 
 ---@return boolean
----@param p Project
+---@param p Projects.Project
 M.exists = function(p)
   local data = M.data()
   return vim.tbl_contains(data, function(v)
@@ -81,8 +79,8 @@ M.exists = function(p)
   end, { predicate = true })
 end
 
----@return Project
----@param p Project
+---@return Projects.Project
+---@param p Projects.Project
 ---@param new_name string
 M.rename = function(new_name, p)
   local data = M.data()
@@ -98,8 +96,8 @@ M.rename = function(new_name, p)
   return p
 end
 
----@return Project
----@param p Project
+---@return Projects.Project
+---@param p Projects.Project
 ---@param path string
 M.edit_path = function(path, p)
   local data = M.data()
@@ -114,8 +112,8 @@ M.edit_path = function(path, p)
   return p
 end
 
----@return Project
----@param p Project
+---@return Projects.Project
+---@param p Projects.Project
 ---@param new_type string
 M.edit_type = function(new_type, p)
   local data = M.data()
@@ -141,7 +139,7 @@ M.restore = function()
   return pathlib.writefile(M.fname, M.state)
 end
 
----@return Project?
+---@return Projects.Project?
 ---@param s string?
 M.get = function(s)
   if type(s) ~= 'string' then
@@ -173,7 +171,7 @@ M.get = function(s)
 end
 
 ---@return integer
----@param p Project
+---@param p Projects.Project
 M.get_idx = function(p)
   local data = M.data()
   for i, t in ipairs(data) do
@@ -185,16 +183,16 @@ M.get_idx = function(p)
   return -1
 end
 
----@return Project[]
----@param t Project[]
----@param target Project
+---@return Projects.Project[]
+---@param t Projects.Project[]
+---@param target Projects.Project
 M.filter = function(t, target)
   return vim.tbl_filter(function(k)
     return target.path ~= k.path
   end, t)
 end
 
----@param p Project[]
+---@param p Projects.Project[]
 M.save_state = function(p)
   M.state = vim.deepcopy(p)
 end
@@ -210,8 +208,9 @@ M.extract_name_path = function(s)
   return name or '', path or ''
 end
 
----@param opts { fname:string, icons:table }
+---@param opts? Projects
 M.setup = function(opts)
+  opts = opts or {}
   if vim.fn.filereadable(opts.fname) == 0 then
     util.err("file not readable: '" .. opts.fname .. "'")
     return

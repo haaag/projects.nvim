@@ -8,29 +8,60 @@
 ---
 ---@brief ]]
 
+---@class Projects.Project
+---@field name string: project name
+---@field path string: project path
+---@field fmt string?: fzf's string format
+---@field last_visit integer?: last visit
+---@field exists boolean?: project exists
+---@field type string: project type
+---@field icon string?: project icon
+
+---@class Projects.Icons
+---@field default string: default icon
+---@field warning string: default warning icon if project does not exist
+---@field color string?: default icon color
+---@field enabled boolean: enable icons
+
+---@class Projects.Keymaps
+---@field add string: add project
+---@field edit_path string: edit project path
+---@field edit_type string: edit project type
+---@field grep string: grep in project path
+---@field remove string: remove project
+---@field rename string: rename project
+---@field restore string: restore state
+
+---@class Projects.FzfOpts
+---@field header string: fzf header
+---@field actions Projects.Action[]: fzf actions
+---@field fzf_opts table: fzf options
+
 ---@class Projects
+---@field name string: plugin name
+---@field cmd string: `user-command` in neovim.
+---@field previewer { enabled: boolean }: enable previewer
+---@field prompt string: fzf's prompt
+---@field fname string: file store ($XDG_DATA_HOME/nvim or ~/.local/share/nvim)
+---@field color boolean: enable color output
+---@field icons Projects.Icons: projects icons
+---@field keymap Projects.Keymaps: fzf's keybinds
+---@field fzf Projects.FzfOpts: fzf's options
 local M = {
   name = 'projects.nvim',
-  -- `user-command` in neovim.
   cmd = 'FzfLuaProjects',
-  -- preview
   previewer = {
     enabled = true,
   },
-  -- fzf's prompt
   prompt = 'Projects> ',
-  -- icons
   icons = {
     default = '',
     warning = '',
-    color = '#6d8086',
+    color = nil,
     enabled = true,
   },
-  -- file store ($XDG_DATA_HOME/nvim || ~/.local/share/nvim)
   fname = vim.fn.stdpath('data') .. '/projects.json',
-  -- color output
   color = true,
-  -- keybinds
   keymap = {
     add = 'ctrl-a',
     edit_path = 'ctrl-e',

@@ -9,9 +9,6 @@ end
 
 local ansi = fzf.utils.ansi_codes
 
----@alias Action { title:string, keybind:string, fn:function, header:boolean }
----@alias Keymaps { add:Action, edit_path:Action, edit_type:Action, grep:Action, remove:Action, rename:Action, restore:Action }
-
 ---@return string
 ---@param s table<string>
 local function previewer(s)
@@ -23,8 +20,8 @@ local function previewer(s)
   return 'last visited: ' .. util.format_last_visit(p.last_visit)
 end
 
----@return  Project[]
----@param t Project[]
+---@return  Projects.Project[]
+---@param t Projects.Project[]
 ---@param add_icons boolean
 ---@param add_color boolean
 local add_ansi = function(t, add_color, add_icons)
@@ -65,7 +62,7 @@ local add_ansi = function(t, add_color, add_icons)
   return t
 end
 
----@class Actions
+---@class Projects.FzfAction
 local M = {
   fzf_files = fzf.files,
   fzf_live_grep = fzf.live_grep,
@@ -134,7 +131,7 @@ M.add = function(_)
   local root = pathlib.get_root()
   local name = vim.fs.basename(root)
 
-  ---@type Project
+  ---@type Projects.Project
   local project = {
     name = name,
     path = root,
@@ -254,14 +251,14 @@ M.edit_type = function(s)
   M.fzf_resume()
 end
 
----@param p Project
+---@param p Projects.Project
 M.update_last_visit = function(p)
   p.last_visit = os.time()
   store.update(p)
 end
 
 ---@return string
----@param act Action[]
+---@param act Projects.Action[]
 M.create_header = function(act)
   local result = ''
   local sep = ' '
@@ -283,42 +280,62 @@ M.create_header = function(act)
 end
 
 ---@return table
----@param act Action[]
+---@param act Projects.Action[]
 M.load_actions = function(act)
   local result = {}
+  if vim.tbl_isempty(act) then
+    return result
+  end
+
   for _, t in pairs(act) do
-    result[t.keybind] = t.fn
+    if t.fn and t.keybind then
+      result[t.keybind] = t.fn
+    end
   end
 
   return result
 end
 
----@param opts table
-M.create_user_command = function(opts)
-  vim.api.nvim_create_user_command(opts.cmd, function()
-    fzf.fzf_exec(function(fzf_cb)
-      local projects = store.data()
-      projects = add_ansi(projects, opts.color, opts.icons.enabled)
+---@param opts Projects
+M.load = function(opts)
+  fzf.fzf_exec(function(fzf_cb)
+    local projects = store.data()
+    projects = add_ansi(projects, opts.color, opts.icons.enabled)
 
-      if opts.icons.enabled then
-        projects = require('projects.icons').load(projects, opts.color)
-      end
+    if opts.icons.enabled then
+      projects = require('projects.icons').load(projects, opts.color)
+    end
 
-      table.sort(projects, function(a, b)
-        return a.last_visit > b.last_visit
-      end)
+    table.sort(projects, function(a, b)
+      return a.last_visit > b.last_visit
+    end)
 
-      for _, v in pairs(projects) do
-        fzf_cb(v.fmt)
-      end
+    for _, v in pairs(projects) do
+      fzf_cb(v.fmt)
+    end
 
-      fzf_cb(nil) -- EOF
-    end, opts)
-  end, {})
+    fzf_cb(nil) -- EOF
+  end, opts.fzf)
 end
 
----@return Keymaps
----@param keymap {  add:string, edit_path:string, edit_type:string, grep:string, remove:string, rename:string, restore:string }
+---@class Projects.Action
+---@field title string: title of the action.
+---@field keybind string: keybinding for the action.
+---@field fn function: function to execute for the action.
+---@field header boolean: indicates whether the action's description should be displayed in the header.
+
+---@class Projects.DefaultsActions
+---@field enter Projects.Action: default action.
+---@field add Projects.Action: action to add.
+---@field edit_path Projects.Action: action to edit the path.
+---@field edit_type Projects.Action: action to edit the type.
+---@field grep Projects.Action: action to grep.
+---@field remove Projects.Action: action to remove.
+---@field rename Projects.Action: action to rename.
+---@field restore Projects.Action: action to restore.
+
+---@param keymap Projects.Keymaps: keymap for the project actions.
+---@return Projects.DefaultsActions: default configuration of actions.
 M.defaults = function(keymap)
   return {
     enter = {
@@ -372,7 +389,7 @@ M.defaults = function(keymap)
   }
 end
 
----@param opts table
+---@param opts? Projects
 M.setup = function(opts)
   opts.header = opts.header or M.create_header(M.defaults(opts.keymap))
   opts.actions = vim.tbl_deep_extend('keep', opts.actions or {}, M.load_actions(M.defaults(opts.keymap)))
